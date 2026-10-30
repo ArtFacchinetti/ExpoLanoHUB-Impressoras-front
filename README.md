@@ -6,7 +6,7 @@ Na visão geral, **Coletar agora** consulta estado (`FAST`) e contador/supriment
 
 ## Contêiner do frontend
 
-O `Dockerfile` gera o build estático e o Caddy o serve na porta 80 do contêiner. O `compose.yaml` publica a porta **8080** do computador, liga o frontend à rede Docker `impressoras_default` e configura reinício automático `unless-stopped`. O Caddy encaminha `/api/*` diretamente ao serviço `api:3000` e devolve `index.html` para as rotas da interface. A porta 3000 do backend continua restrita a `127.0.0.1` no computador.
+O `Dockerfile` gera o build estático e o Caddy o serve na porta 80 do contêiner. O `compose.yaml` publica as portas **80** e **8080** do computador, liga o frontend à rede Docker `impressoras_default` e configura reinício automático `unless-stopped`. O Caddy encaminha `/api/*` diretamente ao serviço `api:3000` e devolve `index.html` para as rotas da interface. A porta 3000 do backend continua restrita a `127.0.0.1` no computador.
 
 Inicie primeiro o backend, pois ele cria a rede compartilhada. Depois suba o frontend em segundo plano:
 
@@ -19,7 +19,7 @@ docker compose up -d --build web
 docker compose ps
 ```
 
-Abra `http://127.0.0.1:8080/impressoras` no próprio computador. Em outro computador da rede, use `http://192.168.0.109:8080/impressoras` enquanto esse for o IP do servidor. O terminal pode ser fechado após `up -d`. Para aplicar alterações no código do frontend, repita `docker compose up -d --build web` nesta pasta. Para consultar logs use `docker compose logs --tail=100 web`; para parar, `docker compose stop web`.
+Abra `http://127.0.0.1/impressoras` no próprio computador. Em outro computador da rede, use `http://192.168.0.109/impressoras` enquanto esse for o IP do servidor. A porta 8080 continua disponível como alternativa. O terminal pode ser fechado após `up -d`. Para aplicar alterações no código do frontend, repita `docker compose up -d --build web` nesta pasta. Para consultar logs use `docker compose logs --tail=100 web`; para parar, `docker compose stop web`. Para configurar um nome no DNS corporativo, siga [DNS_INTERNO.md](./DNS_INTERNO.md).
 
 Se a rede bloquear a porta 8080, crie esta regra no PowerShell **como administrador** do computador que hospeda o Docker:
 

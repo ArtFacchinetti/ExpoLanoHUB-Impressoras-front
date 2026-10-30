@@ -6,6 +6,7 @@ services:
     build: .
     restart: unless-stopped
     ports:
+      - "${FRONT_BIND_IP:-0.0.0.0}:${FRONT_HTTP_PORT:-80}:80"
       - "${FRONT_BIND_IP:-0.0.0.0}:${FRONT_PORT:-8080}:80"
     networks:
       - backend
