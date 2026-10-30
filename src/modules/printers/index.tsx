@@ -9,6 +9,7 @@ import {
   QueryClient,
   QueryClientProvider,
   useQuery,
+  useQueryClient,
 } from "@tanstack/react-query";
 import {
   Activity,
@@ -24,6 +25,7 @@ import {
   LayoutDashboard,
   ListFilter,
   Printer as PrinterIcon,
+  Play,
   RefreshCw,
   Search,
   ServerOff,
@@ -375,6 +377,14 @@ function PrinterTable({
 
 function DashboardPage() {
   const { api, apiBasePath, basePath } = useModule();
+  const queryClient = useQueryClient();
+  const [manualPoll, setManualPoll] = useState<{
+    running: boolean;
+    completed: number;
+    total: number;
+    succeeded: number;
+    failedIps: string[];
+  } | null>(null);
   const month = currentMonth();
   const summary = useQuery({
     queryKey: ["printers", apiBasePath, "summary", month],
@@ -388,6 +398,62 @@ function DashboardPage() {
   });
   const loading = summary.isPending || printers.isPending;
   const error = summary.error || printers.error;
+
+  async function collectNow() {
+    if (manualPoll?.running) return;
+    const targets = printers.data?.filter((printer) => printer.enabled) ?? [];
+    if (targets.length === 0) return;
+
+    let completed = 0;
+    let succeeded = 0;
+    const failedIps: string[] = [];
+    setManualPoll({
+      running: true,
+      completed,
+      total: targets.length,
+      succeeded,
+      failedIps: [],
+    });
+
+    await Promise.all(
+      targets.map(async (printer) => {
+        let fastOk = false;
+        let normalOk = false;
+        try {
+          fastOk = (await api.poll(printer.id, "FAST")).success;
+        } catch {
+          // Ainda tenta a leitura de contador quando a leitura de estado falha.
+        }
+        try {
+          normalOk = (await api.poll(printer.id, "NORMAL")).success;
+        } catch {
+          // A falha desta impressora aparece no resultado da operação.
+        }
+        if (fastOk && normalOk) succeeded++;
+        else failedIps.push(printer.ip);
+        completed++;
+        setManualPoll({
+          running: true,
+          completed,
+          total: targets.length,
+          succeeded,
+          failedIps: [...failedIps],
+        });
+      }),
+    );
+
+    await queryClient.invalidateQueries({
+      queryKey: ["printers", apiBasePath],
+    });
+    setManualPoll({
+      running: false,
+      completed,
+      total: targets.length,
+      succeeded,
+      failedIps: [...failedIps],
+    });
+  }
+
   return (
     <>
       <PageHeading
@@ -395,17 +461,53 @@ function DashboardPage() {
         title="Visão geral"
         description="Acompanhe a disponibilidade e os contadores dos equipamentos em tempo real."
         action={
-          <button
-            className="button secondary"
-            onClick={() => {
-              void summary.refetch();
-              void printers.refetch();
-            }}
-          >
-            <RefreshCw size={16} /> Atualizar
-          </button>
+          <div className="heading-actions">
+            <button
+              className="button primary"
+              onClick={() => void collectNow()}
+              disabled={
+                manualPoll?.running ||
+                !printers.data?.some((printer) => printer.enabled)
+              }
+              title="Consulta estado e contador das impressoras ativas"
+            >
+              {manualPoll?.running ? (
+                <RefreshCw size={16} className="spin-icon" />
+              ) : (
+                <Play size={16} />
+              )}
+              {manualPoll?.running ? "Coletando..." : "Coletar agora"}
+            </button>
+            <button
+              className="button secondary"
+              onClick={() => {
+                void summary.refetch();
+                void printers.refetch();
+              }}
+              disabled={manualPoll?.running}
+            >
+              <RefreshCw size={16} /> Atualizar tela
+            </button>
+          </div>
         }
       />
+      {manualPoll && (
+        <div
+          className={`manual-poll-feedback ${manualPoll.running ? "running" : manualPoll.failedIps.length ? "partial" : "done"}`}
+          role="status"
+          aria-live="polite"
+        >
+          <Activity size={18} />
+          <span>
+            {manualPoll.running
+              ? `Coletando estado e contador: ${manualPoll.completed} de ${manualPoll.total} impressoras concluídas.`
+              : `Coleta concluída: ${manualPoll.succeeded} com sucesso, ${manualPoll.failedIps.length} com falha.`}
+            {!manualPoll.running &&
+              manualPoll.failedIps.length > 0 &&
+              ` Verifique: ${manualPoll.failedIps.join(", ")}.`}
+          </span>
+        </div>
+      )}
       <QueryState
         loading={loading}
         error={error}

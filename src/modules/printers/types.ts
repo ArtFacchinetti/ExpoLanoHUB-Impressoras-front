@@ -92,3 +92,10 @@ export interface PrinterEvent {
     { old: string | boolean | null; new: string | boolean | null }
   >;
 }
+
+export interface PollOutcome {
+  printerId: string;
+  level: "FAST" | "NORMAL";
+  success: boolean;
+  error?: string;
+}

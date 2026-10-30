@@ -2,6 +2,8 @@
 
 Interface web em português para a [API local de impressoras](../impressoras). Inclui visão geral, lista de equipamentos, detalhe com leituras e eventos, e relatório mensal.
 
+Na visão geral, **Coletar agora** consulta estado (`FAST`) e contador/suprimentos (`NORMAL`) de todas as impressoras ativas. O resultado informa quantas responderam e quais falharam; ao terminar, os dados da interface são consultados novamente. **Atualizar tela** apenas relê os dados já armazenados, sem iniciar uma coleta SNMP.
+
 ## Rodar localmente
 
 Requer Node.js 20.19+ ou 22.12+ e o backend ativo em `http://127.0.0.1:3000`.

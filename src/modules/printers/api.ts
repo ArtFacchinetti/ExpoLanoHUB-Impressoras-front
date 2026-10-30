@@ -4,18 +4,19 @@ import type {
   Printer,
   PrinterEvent,
   PrinterMetrics,
+  PollOutcome,
 } from "./types";
 
-async function getJson<T>(
+async function requestJson<T>(
   basePath: string,
   path: string,
-  signal?: AbortSignal,
+  options?: RequestInit,
 ): Promise<T> {
   let response: Response;
   try {
-    response = await fetch(`${basePath.replace(/\/$/, "")}${path}`, { signal });
+    response = await fetch(`${basePath.replace(/\/$/, "")}${path}`, options);
   } catch (error) {
-    if (signal?.aborted) throw error;
+    if (options?.signal?.aborted) throw error;
     throw new Error(
       "Não foi possível conectar à API. Verifique se o backend está ativo.",
     );
@@ -31,6 +32,10 @@ async function getJson<T>(
     throw new Error(message || `Falha na API (HTTP ${response.status}).`);
   }
   return response.json() as Promise<T>;
+}
+
+function getJson<T>(basePath: string, path: string, signal?: AbortSignal) {
+  return requestJson<T>(basePath, path, { signal });
 }
 
 export function createPrinterApi(basePath: string) {
@@ -66,6 +71,16 @@ export function createPrinterApi(basePath: string) {
         basePath,
         `/reports/monthly?month=${encodeURIComponent(month)}`,
         signal,
+      ),
+    poll: (id: string, level: "FAST" | "NORMAL") =>
+      requestJson<PollOutcome>(
+        basePath,
+        `/printers/${encodeURIComponent(id)}/poll`,
+        {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ level }),
+        },
       ),
   };
 }

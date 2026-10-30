@@ -238,6 +238,52 @@
   font-weight: 800;
   white-space: nowrap;
 }
+.printer-module .heading-actions {
+  display: flex;
+  align-items: center;
+  gap: 9px;
+}
+.printer-module .button.primary {
+  background: #6657e8;
+  color: #fff;
+  box-shadow: 0 5px 13px #6657e829;
+}
+.printer-module .button.primary:hover:not(:disabled) {
+  background: #5747d5;
+}
+.printer-module .button:disabled {
+  cursor: not-allowed;
+  opacity: 0.55;
+}
+.printer-module .spin-icon {
+  animation: spin 0.9s linear infinite;
+}
+.printer-module .manual-poll-feedback {
+  display: flex;
+  align-items: flex-start;
+  gap: 10px;
+  margin: -10px 0 24px;
+  padding: 12px 15px;
+  border-radius: 9px;
+  font-size: 11px;
+  line-height: 1.5;
+  font-weight: 700;
+}
+.printer-module .manual-poll-feedback svg {
+  flex: none;
+}
+.printer-module .manual-poll-feedback.running {
+  background: #f1efff;
+  color: #6757d7;
+}
+.printer-module .manual-poll-feedback.done {
+  background: #e9f8ef;
+  color: #278d66;
+}
+.printer-module .manual-poll-feedback.partial {
+  background: #fff6e8;
+  color: #a67a35;
+}
 .printer-module .button.secondary {
   background: #fff;
   border-color: #e7e9f0;
@@ -1059,6 +1105,12 @@
   .printer-module .page-heading .button svg {
     flex: none;
   }
+  .printer-module .page-heading:has(.heading-actions) {
+    flex-direction: column;
+  }
+  .printer-module .heading-actions {
+    width: 100%;
+  }
   .printer-module .month-strip span {
     display: none;
   }
@@ -1119,6 +1171,11 @@
   .printer-module .page-heading .button svg {
     width: 18px;
     height: 18px;
+  }
+  .printer-module .heading-actions .button.primary {
+    flex: 1;
+    font-size: 11px;
+    gap: 7px;
   }
   .printer-module .highlight-symbol {
     width: 39px;
