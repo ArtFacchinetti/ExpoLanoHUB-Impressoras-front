@@ -1,6 +1,6 @@
 # Endereço interno para o módulo de impressoras
 
-Objetivo: abrir `http://impressoras.lanobrasil.local/impressoras` na rede da empresa, sem digitar IP ou porta. Em 30/10/2026, o front já responde na porta 80 de `192.168.0.109`; o registro DNS `impressoras.lanobrasil.local` ainda não existe.
+Endereço ativo: `http://impressoras.lanobrasil.local/impressoras`, sem digitar IP ou porta. Em 30/10/2026, o nome resolve para `192.168.0.109`, a página e `/api/health` responderam neste computador, e o usuário confirmou acesso por outras máquinas. As etapas abaixo ficam como referência para manutenção ou migração.
 
 O DNS existente usa a zona `lanobrasil.local` e responde em `192.168.0.197` (`vmdc01.lanobrasil.local`). A aplicação continua no computador que hospeda o Docker; não é necessário instalar Docker no servidor DNS Windows Server 2012.
 
@@ -47,7 +47,7 @@ Se o nome resolver mas a porta 80 não abrir em outro computador, verifique o fi
 New-NetFirewallRule -DisplayName "Impressoras Front HTTP 80" -Direction Inbound -Action Allow -Protocol TCP -LocalPort 80 -Profile Private -RemoteAddress LocalSubnet
 ```
 
-O contêiner já foi testado localmente na porta 80, mas a regra de firewall precisa de uma sessão com privilégios de administrador e o teste a partir de outro computador ainda está pendente.
+O acesso a partir de outro computador foi confirmado pelo usuário. Só crie a regra acima se uma futura mudança no firewall bloquear a porta 80.
 
 ## Próxima etapa
 

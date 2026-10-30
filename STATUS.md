@@ -11,15 +11,14 @@ Atualizado em 30/10/2026.
 - Estilos responsivos e módulo que pode ser incorporado a um aplicativo React maior.
 - Comando opcional `npm.cmd run dev:lan` para testes em outros computadores da mesma rede.
 - Contêiner do frontend com build estático, Caddy, proxy `/api` e reinício `unless-stopped`. Testado localmente na porta 8080.
-- A porta 80 também está publicada e foi testada localmente, preparando a URL sem número de porta.
+- Endereço interno `http://impressoras.lanobrasil.local/impressoras` criado e funcionando em outras máquinas, conforme teste do usuário. DNS, página e `/api/health` também conferidos neste computador.
 
 ## Falta para uso contínuo por outras pessoas
 
 1. Autenticação e controle de acesso, especialmente para cadastro e coleta manual. A API atual não autentica requisições.
 2. Adicionar HTTPS e autenticação à publicação contínua. O Caddy já serve o build e encaminha `/api`, mas esta fase ainda usa HTTP e não tem login.
-3. Se necessário, criar a regra de firewall para a porta 80 com administrador e validar a abertura em outro computador. A porta 8080 já havia sido testada em outras máquinas.
-4. Reservar o IP do host e criar `impressoras.lanobrasil.local` no DNS corporativo; validar a porta 80 em outro computador. Ver [DNS_INTERNO.md](./DNS_INTERNO.md).
-5. Ativar o início automático do Docker Desktop após login no computador atual ou migrar para um host dedicado com Docker Engine iniciado como serviço.
-6. Definir backup e recuperação do volume do PostgreSQL antes de depender do histórico.
-7. Validar a semântica física do contador em mais modelos e as regras de nível dos suprimentos. Hoje a interface mantém os valores brutos.
-8. Se forem necessários gráficos históricos completos, ampliar a API com agregações e paginação de métricas e eventos.
+3. Confirmar que o IP `192.168.0.109` está reservado no DHCP; o DNS depende desse endereço continuar estável.
+4. Ativar o início automático do Docker Desktop após login no computador atual ou migrar para um host dedicado com Docker Engine iniciado como serviço.
+5. Definir backup e recuperação do volume do PostgreSQL antes de depender do histórico.
+6. Validar a semântica física do contador em mais modelos e as regras de nível dos suprimentos. Hoje a interface mantém os valores brutos.
+7. Se forem necessários gráficos históricos completos, ampliar a API com agregações e paginação de métricas e eventos.
